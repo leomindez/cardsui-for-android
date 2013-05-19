@@ -16,14 +16,21 @@ public abstract class Card extends AbstractCard {
 		public void onCardSwiped(Card card, View layout);
 	}
 
+	// Listener that includes to the view and card.
+	// If need information of card, implement this listener
+	public interface OnClickCardListener {
+		public void onClickCard(Card card, View view);
+	}
+
 	private OnCardSwiped onCardSwipedListener;
 	private OnClickListener mListener;
 	protected View mCardLayout;
+	private OnClickCardListener onClickCardListener;
 
 	public Card() {
 
 	}
-	
+
 	public Card(String title) {
 		this.title = title;
 	}
@@ -63,7 +70,7 @@ public abstract class Card extends AbstractCard {
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
-		int bottom = Utils.convertDpToPixelInt(context, 12);
+		int bottom = Utils.convertDpToPixelInt(context, 10);
 		lp.setMargins(0, 0, 0, bottom);
 
 		view.setLayoutParams(lp);
@@ -90,7 +97,7 @@ public abstract class Card extends AbstractCard {
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
-		int bottom = Utils.convertDpToPixelInt(context, 12);
+		int bottom = Utils.convertDpToPixelInt(context, 10);
 		lp.setMargins(0, 0, 0, bottom);
 
 		view.setLayoutParams(lp);
@@ -117,7 +124,7 @@ public abstract class Card extends AbstractCard {
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
-		int bottom = Utils.convertDpToPixelInt(context, 12);
+		int bottom = Utils.convertDpToPixelInt(context, 10);
 		lp.setMargins(0, 0, 0, bottom);
 
 		view.setLayoutParams(lp);
@@ -144,6 +151,14 @@ public abstract class Card extends AbstractCard {
 
 	public OnCardSwiped getOnCardSwipedListener() {
 		return onCardSwipedListener;
+	}
+
+	public void setOnClickCardListener(OnClickCardListener listener) {
+		onClickCardListener = listener;
+	}
+
+	public OnClickCardListener getOnClickCardListener() {
+		return onClickCardListener;
 	}
 
 	public void setOnCardSwipedListener(OnCardSwiped onEpisodeSwipedListener) {

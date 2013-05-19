@@ -1,12 +1,12 @@
 package com.fima.cardsui.views;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +23,10 @@ import com.fima.cardsui.R;
 import com.fima.cardsui.StackAdapter;
 import com.fima.cardsui.objects.AbstractCard;
 import com.fima.cardsui.objects.Card;
+import com.fima.cardsui.objects.Card.OnClickCardListener;
 import com.fima.cardsui.objects.CardStack;
 
+@SuppressLint("InlinedApi")
 public class CardUI extends FrameLayout {
 
 	/**
@@ -74,7 +76,7 @@ public class CardUI extends FrameLayout {
 	 */
 	public CardUI(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		//read the number of columns from the attributes
+		// read the number of columns from the attributes
 		mColumnNumber = attrs.getAttributeIntValue(null, "columnCount", 1);
 		initData(context);
 	}
@@ -84,7 +86,7 @@ public class CardUI extends FrameLayout {
 	 */
 	public CardUI(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		//read the number of columns from the attributes
+		// read the number of columns from the attributes
 		mColumnNumber = attrs.getAttributeIntValue(null, "columnCount", 1);
 		initData(context);
 	}
@@ -101,13 +103,13 @@ public class CardUI extends FrameLayout {
 		mContext = context;
 		LayoutInflater inflater = LayoutInflater.from(context);
 		mStacks = new ArrayList<AbstractCard>();
-		//inflate a different layout, depending on the number of columns
+		// inflate a different layout, depending on the number of columns
 		if (mColumnNumber == 1) {
 			inflater.inflate(R.layout.cards_view, this);
 			// init observable scrollview
 			mListView = (QuickReturnListView) findViewById(R.id.listView);
 		} else {
-			//initialize the mulitcolumn view
+			// initialize the mulitcolumn view
 			inflater.inflate(R.layout.cards_view_multicolumn, this);
 			mTableLayout = (TableLayout) findViewById(R.id.tableLayout);
 		}
@@ -269,6 +271,28 @@ public class CardUI extends FrameLayout {
 
 	}
 
+	public void addCardsArray(Collection<? extends Card> cardsList,
+			OnClickCardListener cardListener) {
+
+		for (Card card : cardsList) {
+			addCard(card, true);
+			setOnClickCardsArray(card, cardListener);
+
+		}
+
+	}
+
+	private void setOnClickCardsArray(Card card,
+			OnClickCardListener cardListener) {
+
+		if (cardListener != null) {
+			card.setOnClickCardListener(cardListener);
+		} else {
+
+		}
+
+	}
+
 	public void addCardToLastStack(Card card) {
 		addCardToLastStack(card, false);
 
@@ -299,7 +323,8 @@ public class CardUI extends FrameLayout {
 			refresh();
 
 	}
-	//suppress this error message to be able to use spaces in higher api levels
+
+	// suppress this error message to be able to use spaces in higher api levels
 	@SuppressLint("NewApi")
 	public void refresh() {
 
@@ -310,39 +335,47 @@ public class CardUI extends FrameLayout {
 			} else if (mTableLayout != null) {
 				TableRow tr = null;
 				for (int i = 0; i < mAdapter.getCount(); i += mColumnNumber) {
-					//add a new table row with the current context
+					// add a new table row with the current context
 					tr = (TableRow) new TableRow(mTableLayout.getContext());
 					tr.setOrientation(TableRow.HORIZONTAL);
-					tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+					tr.setLayoutParams(new TableRow.LayoutParams(
+							TableRow.LayoutParams.MATCH_PARENT,
 							TableRow.LayoutParams.WRAP_CONTENT));
-					//add as many cards as the number of columns indicates per row
+					// add as many cards as the number of columns indicates per
+					// row
 					for (int j = 0; j < mColumnNumber; j++) {
 						if (i + j < mAdapter.getCount()) {
 							View card = mAdapter.getView(i + j, null, tr);
-							if(card.getLayoutParams() != null) {
-								card.setLayoutParams(new TableRow.LayoutParams(card.getLayoutParams().width, card.getLayoutParams().height, 1f));
+							if (card.getLayoutParams() != null) {
+								card.setLayoutParams(new TableRow.LayoutParams(
+										card.getLayoutParams().width, card
+												.getLayoutParams().height, 1f));
 							} else {
-								card.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
+								card.setLayoutParams(new TableRow.LayoutParams(
+										TableRow.LayoutParams.MATCH_PARENT,
+										TableRow.LayoutParams.WRAP_CONTENT, 1f));
 							}
 							tr.addView(card);
 						}
 					}
 					mTableLayout.addView(tr);
 				}
-				if(tr != null) {
-					//fill the empty space with spacers
+				if (tr != null) {
+					// fill the empty space with spacers
 					for (int j = mAdapter.getCount() % mColumnNumber; j > 0; j--) {
 						View space = null;
-						if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-							space = new Space(tr.getContext()) ;
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+							space = new Space(tr.getContext());
 						} else {
-							space = new View(tr.getContext()) ;
+							space = new View(tr.getContext());
 						}
-						space.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
+						space.setLayoutParams(new TableRow.LayoutParams(
+								TableRow.LayoutParams.MATCH_PARENT,
+								TableRow.LayoutParams.WRAP_CONTENT, 1f));
 						tr.addView(space);
 					}
 				}
-				
+
 			}
 		} else {
 			mAdapter.setSwipeable(mSwipeable); // in case swipeable changed;
@@ -371,6 +404,16 @@ public class CardUI extends FrameLayout {
 
 	public void setOnRenderedListener(OnRenderedListener onRenderedListener) {
 		this.onRenderedListener = onRenderedListener;
+	}
+
+	public void hideScrollBar(boolean actived) {
+		if (actived) {
+			mListView.setVerticalScrollBarEnabled(false);
+			mListView.setHorizontalScrollBarEnabled(false);
+
+		} else {
+			mListView.setScrollBarStyle(View.SCROLLBAR_POSITION_DEFAULT);
+		}
 	}
 
 }

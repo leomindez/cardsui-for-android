@@ -59,4 +59,5 @@ public class QuickReturnListView extends ListView {
 		nScrollY = mItemOffsetY[pos] - nItemY;
 		return nScrollY;
 	}
+
 }
