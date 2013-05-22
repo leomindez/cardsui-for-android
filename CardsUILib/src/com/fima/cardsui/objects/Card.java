@@ -19,7 +19,7 @@ public abstract class Card extends AbstractCard {
 	// Listener that includes to the view and card.
 	// If need information of card, implement this listener
 	public interface OnClickCardListener {
-		public void onClickCard(Card card, View view);
+		public void onClickCard(Card card);//, View view);
 	}
 
 	private OnCardSwiped onCardSwipedListener;
@@ -145,8 +145,7 @@ public abstract class Card extends AbstractCard {
 	public void OnSwipeCard() {
 		if (onCardSwipedListener != null)
 			onCardSwipedListener.onCardSwiped(this, mCardLayout);
-		// TODO: find better implementation to get card-object's used content
-		// layout (=> implementing getCardContent());
+
 	}
 
 	public OnCardSwiped getOnCardSwipedListener() {
@@ -155,6 +154,17 @@ public abstract class Card extends AbstractCard {
 
 	public void setOnClickCardListener(OnClickCardListener listener) {
 		onClickCardListener = listener;
+	}
+
+	protected void setClickCard(final View view) {
+		view.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				if (getOnClickCardListener() != null) {
+					getOnClickCardListener().onClickCard(Card.this);
+				}
+			}
+		});
 	}
 
 	public OnClickCardListener getOnClickCardListener() {
